@@ -1,3 +1,3 @@
-# Advent of Code Rust Template
+# Advent of Code 2020
 
-Advent of Code Rust template from https://aoc-templates.util.repl.co/
+Solutions to Advent of Code 2020 written in Rust.
