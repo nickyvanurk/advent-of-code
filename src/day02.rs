@@ -1,7 +1,7 @@
 pub fn part1(input: String) {
     let valid_passwords = input
         .lines()
-        .map(|s| {
+        .filter(|s| {
             let v: Vec<&str> = s.split(|c| vec!['-', ':', ' '].contains(&c)).collect();
             let min = v[0].parse::<u8>().unwrap();
             let max = v[1].parse::<u8>().unwrap();
@@ -9,7 +9,6 @@ pub fn part1(input: String) {
 
             min <= letter_occurrences && letter_occurrences <= max
         })
-        .filter(|b| *b)
         .count();
 
     println!("{}", valid_passwords);
@@ -18,7 +17,7 @@ pub fn part1(input: String) {
 pub fn part2(input: String) {
     let valid_passwords = input
         .lines()
-        .map(|s| {
+        .filter(|s| {
             let v: Vec<&str> = s.split(|c| vec!['-', ':', ' '].contains(&c)).collect();
             let pos1 = v[0].parse::<usize>().unwrap();
             let pos2 = v[1].parse::<usize>().unwrap();
@@ -27,7 +26,6 @@ pub fn part2(input: String) {
 
             pos1_has_letter ^ pos2_has_letter
         })
-        .filter(|b| *b)
         .count();
 
     println!("{}", valid_passwords);
