@@ -25,7 +25,7 @@ pub fn part2(input: String) {
             let pos1_has_letter = v[4][pos1 - 1..pos1] == *v[2];
             let pos2_has_letter = v[4][pos2 - 1..pos2] == *v[2];
 
-            pos1_has_letter as u8 + pos2_has_letter as u8 == 1
+            pos1_has_letter ^ pos2_has_letter
         })
         .filter(|b| *b)
         .count();
