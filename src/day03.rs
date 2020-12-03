@@ -1,17 +1,11 @@
 pub fn part1(input: String) {
-    let map: Vec<Vec<bool>> = input
-        .lines()
-        .map(|s| s.chars().map(|x| x == '#').collect())
-        .collect();
+    let map = input.lines().collect();
 
     println!("{}", get_trees_from_slope(3, 1, &map));
 }
 
 pub fn part2(input: String) {
-    let map: Vec<Vec<bool>> = input
-        .lines()
-        .map(|s| s.chars().map(|x| x == '#').collect())
-        .collect();
+    let map = input.lines().collect();
 
     println!(
         "{}",
@@ -23,14 +17,15 @@ pub fn part2(input: String) {
     );
 }
 
-fn get_trees_from_slope(x_delta: usize, y_delta: usize, map: &Vec<Vec<bool>>) -> usize {
-    let mut trees = 0;
-
-    for y in (y_delta..map.len()).step_by(y_delta) {
-        if map[y][(y / y_delta) * x_delta % map[0].len()] {
-            trees += 1;
-        }
-    }
-
-    trees
+fn get_trees_from_slope(x_delta: usize, y_delta: usize, map: &Vec<&str>) -> usize {
+    map.iter()
+        .enumerate()
+        .filter(|(y, row)| {
+            return if y % y_delta == 0 {
+                row.as_bytes()[y / y_delta * x_delta % row.len()] as char == '#'
+            } else {
+                false
+            };
+        })
+        .count()
 }
