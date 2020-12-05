@@ -38,7 +38,7 @@ fn get_seat_ids(input: &String) -> Vec<u16> {
                 }
             }
 
-            (b >> 3) * 8 + (b & 0x7)
+            (b >> 3) * 8 + (b & 7)
         })
         .collect()
 }
