@@ -1,9 +1,9 @@
 pub fn part1(input: String) {
-    println!("{:?}", get_seat_ids(&input).iter().max().unwrap());
+    println!("{}", get_seat_ids(&input).iter().max().unwrap());
 }
 
 pub fn part2(input: String) {
-    let mut seat_ids: Vec<u16> = get_seat_ids(&input);
+    let mut seat_ids = get_seat_ids(&input);
 
     seat_ids.sort();
 
