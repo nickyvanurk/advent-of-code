@@ -3,7 +3,7 @@ pub fn part1(input: String) {
 }
 
 pub fn part2(input: String) {
-    let mut seat_ids: Vec<u32> = get_seat_ids(&input);
+    let mut seat_ids: Vec<u16> = get_seat_ids(&input);
 
     seat_ids.sort();
 
@@ -19,32 +19,26 @@ pub fn part2(input: String) {
             id + 1 != next
         })
         .map(|(_, &id)| id)
-        .collect::<Vec<_>>()
-        .first()
+        .nth(0)
         .unwrap()
         + 1;
 
     println!("{}", my_seat);
 }
 
-fn get_seat_ids(input: &String) -> Vec<u32> {
+fn get_seat_ids(input: &String) -> Vec<u16> {
     input
         .lines()
-        .map(|pass| {
-            let mut row_range = (0, 127);
-            let mut col_range = (0, 7);
+        .map(|passport| {
+            let mut b = 0;
 
-            for c in pass.chars() {
-                match c {
-                    'F' => row_range.1 = row_range.0 + (row_range.1 - row_range.0) / 2,
-                    'B' => row_range.0 = row_range.1 - (row_range.1 - row_range.0) / 2,
-                    'L' => col_range.1 = col_range.0 + (col_range.1 - col_range.0) / 2,
-                    'R' => col_range.0 = col_range.1 - (col_range.1 - col_range.0) / 2,
-                    _ => unreachable!(),
+            for (i, c) in passport.chars().enumerate() {
+                if c == 'B' || c == 'R' {
+                    b += u16::pow(2, (passport.len() - 1 - i) as u32);
                 }
             }
 
-            row_range.0 * 8 + col_range.0
+            (b >> 3) * 8 + (b & 0x7)
         })
         .collect()
 }
