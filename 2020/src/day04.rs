@@ -5,7 +5,7 @@ pub fn part1(input: String) {
 
     let valid_passports = input
         .split("\n\n")
-        .filter(|&p| required_fields.iter().all(|field| p.contains(field)))
+        .filter(|&passport| required_fields.iter().all(|field| passport.contains(field)))
         .count();
 
     println!("{}", valid_passports);
