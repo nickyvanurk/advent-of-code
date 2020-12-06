@@ -3,40 +3,24 @@ pub fn part1(input: String) {
 }
 
 pub fn part2(input: String) {
-    let mut seat_ids = get_seat_ids(&input);
+    let seat_ids = get_seat_ids(&input);
+    let n = seat_ids.iter().max().unwrap() + seat_ids.iter().min().unwrap();
+    let sum = seat_ids.iter().sum::<usize>();
 
-    seat_ids.sort();
-
-    let my_seat = seat_ids
-        .iter()
-        .enumerate()
-        .filter(|(i, &id)| {
-            let next = match seat_ids.get(i + 1) {
-                Some(&seat_id) => seat_id,
-                None => return false,
-            };
-
-            id + 1 != next
-        })
-        .map(|(_, &id)| id)
-        .nth(0)
-        .unwrap()
-        + 1;
-
-    println!("{}", my_seat);
+    println!("{}", n * (seat_ids.len() + 1) / 2 - sum); // Gauss sum
 }
 
-fn get_seat_ids(input: &String) -> Vec<u16> {
+fn get_seat_ids(input: &String) -> Vec<usize> {
     input
         .lines()
-        .map(|passport| {
-            let mut b = 0;
-
-            for (i, c) in passport.chars().enumerate() {
-                if c == 'B' || c == 'R' {
-                    b += u16::pow(2, (passport.len() - 1 - i) as u32);
-                }
-            }
+        .map(|p| {
+            let b = usize::from_str_radix(
+                &p.chars()
+                    .map(|c| if c == 'B' || c == 'R' { "1" } else { "0" })
+                    .collect::<String>(),
+                2,
+            )
+            .unwrap();
 
             (b >> 3) * 8 + (b & 7)
         })
