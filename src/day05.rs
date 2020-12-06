@@ -13,16 +13,17 @@ pub fn part2(input: String) {
 fn get_seat_ids(input: &String) -> Vec<usize> {
     input
         .lines()
-        .map(|p| {
-            let b = usize::from_str_radix(
-                &p.chars()
-                    .map(|c| if c == 'B' || c == 'R' { "1" } else { "0" })
-                    .collect::<String>(),
-                2,
-            )
-            .unwrap();
-
-            (b >> 3) * 8 + (b & 7)
-        })
+        .map(|p| (encode(&p) >> 3) * 8 + (encode(&p) & 7))
         .collect()
+}
+
+fn encode(passport: &str) -> usize {
+    usize::from_str_radix(
+        &passport
+            .chars()
+            .map(|c| if "BR".contains(c) { "1" } else { "0" })
+            .collect::<String>(),
+        2,
+    )
+    .unwrap()
 }
