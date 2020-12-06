@@ -2,4 +2,4 @@
 
 # Advent of Code
 
-Solutions to Advent of Code written in Rust.
+Solutions to [Advent of Code](https://adventofcode.com/) written in Rust.
