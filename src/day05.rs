@@ -13,11 +13,14 @@ pub fn part2(input: String) {
 fn get_seat_ids(input: &String) -> Vec<usize> {
     input
         .lines()
-        .map(|p| (encode(&p) >> 3) * 8 + (encode(&p) & 7))
+        .map(|p| {
+            let b = binary_encode_passport(&p);
+            (b >> 3) * 8 + (b & 7)
+        })
         .collect()
 }
 
-fn encode(passport: &str) -> usize {
+fn binary_encode_passport(passport: &str) -> usize {
     usize::from_str_radix(
         &passport
             .chars()
