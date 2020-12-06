@@ -1,3 +1,5 @@
-# Advent of Code 2020
+![Advent of Code](./aoc.png)
 
-Solutions to Advent of Code 2020 written in Rust.
+# Advent of Code
+
+Solutions to Advent of Code written in Rust.
