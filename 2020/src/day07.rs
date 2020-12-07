@@ -1,5 +1,4 @@
 use itertools::Itertools;
-use regex::Regex;
 use std::collections::HashMap;
 
 pub fn part1(input: String) {
@@ -53,18 +52,30 @@ fn parse_bag_rules(input: String) -> HashMap<String, Vec<(usize, String)>> {
         .lines()
         .filter(|line| !line.contains("no other"))
         .for_each(|line| {
-            let root_bag_re = Regex::new(r"^(\w*\s\w*)").unwrap();
-            let child_bag_re = Regex::new(r"(\d)\s(\w*\s\w*)").unwrap();
+            let bag = line.split(' ').take(2).join(" ");
+            let children = line
+                .match_indices("bag")
+                .skip(1)
+                .map(|(idx, _)| {
+                    let quantity = line[..idx]
+                        .matches(char::is_numeric)
+                        .last()
+                        .unwrap()
+                        .parse::<usize>()
+                        .unwrap();
+                    let color = line[..idx]
+                        .trim()
+                        .split(' ')
+                        .rev()
+                        .take(2)
+                        .join(" ")
+                        .split(' ')
+                        .rev()
+                        .join(" ");
 
-            let bag = root_bag_re.captures(line).unwrap().get(0).unwrap().as_str();
-            let mut children = vec![];
-
-            for caps in child_bag_re.captures_iter(line) {
-                let quantity = caps.get(1).unwrap().as_str().parse::<usize>().unwrap();
-                let color = caps.get(2).map(|m| m.as_str()).unwrap();
-
-                children.push((quantity, color.to_string()));
-            }
+                    (quantity, color)
+                })
+                .collect::<Vec<(usize, String)>>();
 
             bags.insert(bag.to_string(), children);
         });
