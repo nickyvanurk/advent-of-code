@@ -1,49 +1,55 @@
-use itertools::Itertools;
 use std::collections::HashMap;
-use std::collections::HashSet;
 
 pub fn part1(input: String) {
     let bags = parse_bag_rules(input);
-    let num_bags = get_num_bags_containing(&"shiny gold", &mut HashSet::new(), &bags);
+    let num_bags = get_num_bags_containing(&"shiny gold", &bags);
 
     println!("{}", num_bags);
 }
 
 pub fn part2(input: String) {
     let bags = parse_bag_rules(input);
-    let num_bags = get_num_bags_contained(&"shiny gold", 1, &bags);
+    let num_bags = get_num_inner_bags(&"shiny gold", &bags);
 
     println!("{}", num_bags);
 }
 
-fn get_num_bags_containing(
-    color: &str,
-    colors: &mut HashSet<String>,
-    bags: &HashMap<String, Vec<(usize, String)>>,
-) -> usize {
-    bags.iter()
-        .filter(|&(_, children)| children.iter().any(|(_, c)| c == color))
-        .for_each(|(bag, _)| {
-            get_num_bags_containing(bag, colors, bags);
-            colors.insert(bag.to_string());
-        });
+fn get_num_bags_containing(color: &str, bags: &HashMap<String, Vec<(usize, String)>>) -> usize {
+    let mut sum = 0;
 
-    colors.iter().count()
+    for bag in bags.keys() {
+        if bag != color && bag_contains(color, bag, &bags) {
+            sum += 1;
+        }
+    }
+
+    sum
 }
 
-fn get_num_bags_contained(
-    color: &str,
-    amount: usize,
-    bags: &HashMap<String, Vec<(usize, String)>>,
-) -> usize {
-    bags.iter()
-        .filter(|&(bag, _)| bag == color)
-        .fold(0, |acc1, (_, children)| {
-            acc1 + amount
-                * children.iter().fold(0, |acc2, (quantity, bag)| {
-                    acc2 + get_num_bags_contained(bag.as_str(), *quantity, bags) + quantity
-                })
-        })
+fn bag_contains(color: &str, bag: &str, bags: &HashMap<String, Vec<(usize, String)>>) -> bool {
+    if bag == color {
+        return true;
+    }
+
+    if let Some(inner_bags) = bags.get(bag) {
+        for inner_bag in inner_bags {
+            if bag_contains(&color, &inner_bag.1, bags) {
+                return true;
+            }
+        }
+    };
+
+    return false;
+}
+
+fn get_num_inner_bags(color: &str, bags: &HashMap<String, Vec<(usize, String)>>) -> usize {
+    if let Some(inner_bags) = bags.get(color) {
+        return inner_bags.iter().fold(0, |sum, inner_bag| {
+            sum + inner_bag.0 + inner_bag.0 * get_num_inner_bags(&inner_bag.1, &bags)
+        });
+    }
+
+    return 0;
 }
 
 fn parse_bag_rules(input: String) -> HashMap<String, Vec<(usize, String)>> {
@@ -53,32 +59,28 @@ fn parse_bag_rules(input: String) -> HashMap<String, Vec<(usize, String)>> {
         .lines()
         .filter(|line| !line.contains("no other"))
         .for_each(|line| {
-            let bag = line.split(' ').take(2).join(" ");
-            let children = line
-                .match_indices("bag")
-                .skip(1)
-                .map(|(idx, _)| {
-                    let quantity = line[..idx]
+            let parsed = line.split(" bags contain ").collect::<Vec<&str>>();
+
+            let bag = parsed[0];
+            let inner_bags = parsed[1]
+                .replace(".", "")
+                .replace(" bags", "")
+                .replace(" bag", "")
+                .split(", ")
+                .map(|bag| {
+                    let quantity = bag
                         .matches(char::is_numeric)
                         .last()
                         .unwrap()
                         .parse::<usize>()
                         .unwrap();
-                    let color = line[..idx]
-                        .trim()
-                        .split(' ')
-                        .rev()
-                        .take(2)
-                        .join(" ")
-                        .split(' ')
-                        .rev()
-                        .join(" ");
+                    let color = bag.split(' ').skip(1).collect::<Vec<&str>>().join(" ");
 
                     (quantity, color)
                 })
                 .collect::<Vec<(usize, String)>>();
 
-            bags.insert(bag.to_string(), children);
+            bags.insert(bag.to_string(), inner_bags);
         });
 
     bags
