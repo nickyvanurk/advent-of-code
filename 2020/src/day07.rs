@@ -1,9 +1,10 @@
 use itertools::Itertools;
 use std::collections::HashMap;
+use std::collections::HashSet;
 
 pub fn part1(input: String) {
     let bags = parse_bag_rules(input);
-    let num_bags = get_num_bags_containing(&"shiny gold", &mut vec![], &bags);
+    let num_bags = get_num_bags_containing(&"shiny gold", &mut HashSet::new(), &bags);
 
     println!("{}", num_bags);
 }
@@ -17,17 +18,17 @@ pub fn part2(input: String) {
 
 fn get_num_bags_containing(
     color: &str,
-    colors: &mut Vec<String>,
+    colors: &mut HashSet<String>,
     bags: &HashMap<String, Vec<(usize, String)>>,
 ) -> usize {
     bags.iter()
         .filter(|&(_, children)| children.iter().any(|(_, c)| c == color))
         .for_each(|(bag, _)| {
             get_num_bags_containing(bag, colors, bags);
-            colors.push(bag.to_string());
+            colors.insert(bag.to_string());
         });
 
-    colors.iter().unique().count()
+    colors.iter().count()
 }
 
 fn get_num_bags_contained(
