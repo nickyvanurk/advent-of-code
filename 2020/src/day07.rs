@@ -1,88 +1,73 @@
 use itertools::Itertools;
+use regex::Regex;
+use std::collections::HashMap;
 
 pub fn part1(input: String) {
-    let parsed = input
-        .lines()
-        .filter(|&l| !l.contains("no other"))
-        .map(|l| {
-            l.match_indices("bag")
-                .map(|(idx, _)| l[..idx].trim().split(' ').rev().take(2).collect::<String>())
-                .collect::<Vec<String>>()
-        })
-        .collect::<Vec<Vec<String>>>();
+    let bags = parse_bag_rules(input);
+    let num_bags = get_num_bags_containing(&"shiny gold", &mut vec![], &bags);
 
-    let num_bag_colors = get_bags_containing(&"goldshiny", &mut vec![], &parsed);
-
-    println!("{}", num_bag_colors);
+    println!("{}", num_bags);
 }
 
 pub fn part2(input: String) {
-    // can use hashmap prolly
+    let bags = parse_bag_rules(input);
+    let num_bags = get_num_bags_contained(&"shiny gold", 1, &bags);
 
-    let parsed = input
-        .lines()
-        .filter(|&l| !l.contains("no other"))
-        .map(|l| {
-            l.match_indices("bag")
-                .map(|(idx, _)| {
-                    let quantity = match l[..idx].matches(char::is_numeric).last() {
-                        Some(n) => n.parse::<usize>().unwrap(),
-                        None => 0,
-                    };
-                    let color = l[..idx].trim().split(' ').rev().take(2).collect::<String>();
-
-                    (quantity, color)
-                })
-                .collect::<Vec<(usize, String)>>()
-        })
-        .collect::<Vec<Vec<(usize, String)>>>();
-
-    println!("{}", get_bags_contained(&"goldshiny", 1, &parsed));
+    println!("{}", num_bags);
 }
 
-fn get_bags_contained(color: &str, amount: usize, bags: &Vec<Vec<(usize, String)>>) -> usize {
-    let bag_tuples = bags
-        .iter()
-        .filter(|b| b.first().unwrap().1 == color)
-        .map(|b| b.iter().skip(1).collect::<Vec<&(usize, String)>>())
-        .collect::<Vec<Vec<&(usize, String)>>>();
-
-    if bag_tuples.is_empty() {
-        return 0;
-    }
-
-    let mut a = 0;
-
-    for bag in bag_tuples {
-        let q = bag.iter().fold(0, |acc, &(quantity, color)| {
-            acc + get_bags_contained(color, *quantity, bags) + quantity
+fn get_num_bags_containing(
+    color: &str,
+    colors: &mut Vec<String>,
+    bags: &HashMap<String, Vec<(usize, String)>>,
+) -> usize {
+    bags.iter()
+        .filter(|&(_, children)| children.iter().any(|(_, c)| c == color))
+        .for_each(|(bag, _)| {
+            get_num_bags_containing(bag, colors, bags);
+            colors.push(bag.to_string());
         });
 
-        a += amount * q;
-    }
-
-    a
+    colors.iter().unique().count()
 }
 
-fn get_bags_containing(color: &str, colors: &mut Vec<String>, bags: &Vec<Vec<String>>) -> usize {
-    let bag_colors: Vec<&String> = bags
-        .iter()
-        .filter(|b| {
-            let position = b.iter().position(|c| c == color);
-
-            match position {
-                Some(idx) => idx != 0,
-                None => false,
-            }
+fn get_num_bags_contained(
+    color: &str,
+    amount: usize,
+    bags: &HashMap<String, Vec<(usize, String)>>,
+) -> usize {
+    bags.iter()
+        .filter(|&(bag, _)| bag == color)
+        .fold(0, |acc1, (_, children)| {
+            acc1 + amount
+                * children.iter().fold(0, |acc2, (quantity, bag)| {
+                    acc2 + get_num_bags_contained(bag.as_str(), *quantity, bags) + quantity
+                })
         })
-        .map(|b| b.first().unwrap())
-        //.inspect(|v| println!("{:?}", v))
-        .collect();
+}
 
-    for color in bag_colors {
-        colors.push(color.to_string());
-        get_bags_containing(color, colors, bags);
-    }
+fn parse_bag_rules(input: String) -> HashMap<String, Vec<(usize, String)>> {
+    let mut bags = HashMap::new();
 
-    colors.iter().unique().count()
+    input
+        .lines()
+        .filter(|line| !line.contains("no other"))
+        .for_each(|line| {
+            let root_bag_re = Regex::new(r"^(\w*\s\w*)").unwrap();
+            let child_bag_re = Regex::new(r"(\d)\s(\w*\s\w*)").unwrap();
+
+            let bag = root_bag_re.captures(line).unwrap().get(0).unwrap().as_str();
+            let mut children = vec![];
+
+            for caps in child_bag_re.captures_iter(line) {
+                let quantity = caps.get(1).unwrap().as_str().parse::<usize>().unwrap();
+                let color = caps.get(2).map(|m| m.as_str()).unwrap();
+
+                children.push((quantity, color.to_string()));
+            }
+
+            bags.insert(bag.to_string(), children);
+        });
+
+    bags
 }
