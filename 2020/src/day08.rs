@@ -41,28 +41,27 @@ fn switch_operations<'a>(
 }
 
 fn run_boot_code(instructions: &Vec<Instruction<'_>>) -> (bool, i32) {
-    let mut instruction_executed = vec![false; instructions.len()];
+    let mut visited = vec![false; instructions.len()];
     let mut instruction_idx = 0;
     let mut accumulator = 0;
 
-    while instruction_idx as usize != instructions.len() {
-        let instruction = &instructions[instruction_idx as usize];
+    while instruction_idx != instructions.len() {
+        let instruction = &instructions[instruction_idx];
+        let instruction_executed = &mut visited[instruction_idx];
 
-        if instruction_executed[instruction_idx as usize] {
+        if *instruction_executed {
             return (false, accumulator);
         }
 
-        instruction_executed[instruction_idx as usize] = true;
+        *instruction_executed = true;
 
-        match instruction.operation {
-            "acc" => accumulator += instruction.argument,
-            "jmp" => instruction_idx += instruction.argument,
-            _ => (),
+        if instruction.operation == "acc" {
+            accumulator += instruction.argument
+        } else if instruction.operation == "jmp" {
+            instruction_idx = ((instruction_idx as i32) + instruction.argument - 1) as usize;
         }
 
-        if instruction.operation != "jmp" {
-            instruction_idx += 1;
-        }
+        instruction_idx += 1;
     }
 
     (true, accumulator)
