@@ -71,13 +71,9 @@ fn run_boot_code(instructions: &Vec<Instruction<'_>>) -> (bool, i32) {
 fn parse_instructions(input: &String) -> Vec<Instruction<'_>> {
     input
         .lines()
-        .map(|line| {
-            let parsed = line.split(' ').collect::<Vec<&str>>();
-
-            Instruction {
-                operation: parsed[0],
-                argument: parsed[1].parse().unwrap(),
-            }
+        .map(|line| Instruction {
+            operation: &line[..3],
+            argument: line[4..].parse().unwrap(),
         })
         .collect()
 }
