@@ -2,14 +2,13 @@ pub fn part1(input: &String) -> u64 {
     let data = parse_data(&input);
     let preamble = 25;
 
-    for sum in preamble..data.len() {
-        let set = &data[sum - preamble..sum];
-        let found_pair = set
-            .iter()
-            .any(|&number| set.contains(&(((data[sum] as i64) - (number as i64)) as u64)));
+    for (&sum, window) in data.iter().skip(preamble).zip(data.windows(preamble)) {
+        let found_pair = window.iter().enumerate().any(|(i, &number)| {
+            sum > number && window[i + 1..].contains(&(((sum as i64) - (number as i64)) as u64))
+        });
 
         if !found_pair {
-            return data[sum];
+            return sum;
         }
     }
 
