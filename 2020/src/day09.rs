@@ -1,72 +1,47 @@
-use std::collections::HashSet;
-
 pub fn part1(input: &String) -> u64 {
-    let numbers = input
-        .lines()
-        .map(|line| line.parse::<u64>().unwrap())
-        .collect::<Vec<u64>>();
+    let data = parse_data(&input);
     let preamble = 25;
-    let mut sum_idx = 25;
-    let mut set: HashSet<u64> = HashSet::new();
 
-    let mut sum;
-    let mut current;
+    for sum in preamble..data.len() {
+        let set = &data[sum - preamble..sum];
+        let found_pair = set
+            .iter()
+            .any(|&number| set.contains(&(((data[sum] as i64) - (number as i64)) as u64)));
 
-    for i in 0..numbers.len() {
-        sum = numbers[sum_idx];
-        current = numbers[i];
-
-        if i == sum_idx {
-            set.remove(&numbers[sum_idx - preamble]);
-            set.insert(sum);
-            sum_idx += 1;
+        if !found_pair {
+            return data[sum];
         }
-
-        if set.len() == preamble {
-            let mut found = false;
-
-            for j in (i - preamble)..i {
-                if set.contains(&(((sum as i64) - numbers[j] as i64) as u64)) {
-                    found = true;
-                    break;
-                }
-            }
-
-            if !found {
-                return sum;
-            }
-        }
-
-        set.insert(current);
     }
 
     0
 }
 
 pub fn part2(input: &String) -> u64 {
-    let numbers = input
-        .lines()
-        .map(|line| line.parse::<u64>().unwrap())
-        .collect::<Vec<u64>>();
-    let mut set: HashSet<u64> = HashSet::new();
-    let mut min_idx = 0;
-    let mut sum = 0;
+    let data = parse_data(&input);
+    let mut tail = 0;
+    let mut head = 1;
+    let mut sum = data[0];
     let target = 400480901;
 
-    for i in 0..numbers.len() {
-        set.insert(numbers[i]);
-        sum += numbers[i];
-
-        while sum > target {
-            set.remove(&numbers[min_idx]);
-            sum -= numbers[min_idx];
-            min_idx += 1;
-        }
-
-        if sum == target {
+    while head < data.len() {
+        if sum < target {
+            sum += data[head];
+            head += 1;
+        } else if sum > target {
+            sum -= data[tail];
+            tail += 1;
+        } else {
+            let set = &data[tail..head + 1];
             return set.iter().min().unwrap() + set.iter().max().unwrap();
         }
     }
 
     0
+}
+
+fn parse_data(input: &String) -> Vec<u64> {
+    input
+        .lines()
+        .map(|l| l.parse::<u64>().unwrap())
+        .collect::<Vec<u64>>()
 }
