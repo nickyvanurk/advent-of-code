@@ -1,36 +1,18 @@
 use std::env;
-use std::fs;
 use std::io;
-use std::time::{Duration, Instant};
 
-use advent_of_code::{get_day, noop};
+use advent_of_code::*;
 
-fn fmt_time(ms: f64) -> String {
-    if ms <= 1.0 {
-        let micro_sec = ms * 1000.0;
-        return String::from(format!("{}µs", micro_sec.round()));
-    }
-
-    if ms < 1000.0 {
-        let whole_ms = ms.floor();
-        let rem_ms = ms - whole_ms;
-        return String::from(format!("{}ms ", whole_ms) + &fmt_time(rem_ms));
-    }
-
-    let sec: f64 = ms / 1000.0;
-    if sec < 60.0 {
-        let whole_sec = sec.floor();
-        let rem_ms = ms - whole_sec * 1000.0;
-
-        return format!("{}s ", whole_sec) + &fmt_time(rem_ms);
-    }
-
-    let min: f64 = sec / 60.0;
-    return format!("{}m ", min.floor()) + &fmt_time((sec % 60.0) * 1000.0);
-}
-
-fn fmt_dur(dur: Duration) -> String {
-    return fmt_time(dur.as_secs_f64() * 1000.0);
+macro_rules! run_day {
+    ($day:path, $input:expr) => {{
+        use $day::*;
+        println!(
+            "{}: part1 = {:?}, part2 = {:?}",
+            stringify!($day),
+            part1($input),
+            part2($input)
+        );
+    }};
 }
 
 fn main() {
@@ -49,7 +31,7 @@ fn main() {
 
     // Parse day as number
     day = day.trim().to_string();
-    let day_num: u32 = match day.parse() {
+    let day_num: u8 = match day.parse() {
         Ok(num) => num,
         Err(_) => {
             println!("Invalid day number: {}", day);
@@ -57,29 +39,18 @@ fn main() {
         }
     };
 
-    // Read input file
-    let cwd = env::current_dir().unwrap();
-    let filename = cwd.join("inputs").join(format!("day{:02}.txt", day_num));
-    println!("Reading {}", filename.display());
-    let input = fs::read_to_string(filename).expect("Error while reading");
+    let input = read_input(day_num);
 
-    // Get corresponding function
-    let to_run = get_day(day_num);
-
-    // Time it
-    if to_run.0 != noop {
-        println!("Running Part 1");
-        let part1_start = Instant::now();
-        to_run.0(input.clone());
-        let part1_dur = part1_start.elapsed();
-        println!("Took {}", fmt_dur(part1_dur));
-    }
-
-    if to_run.1 != noop {
-        println!("Running Part 2");
-        let part2_start = Instant::now();
-        to_run.1(input.clone());
-        let part2_dur = part2_start.elapsed();
-        println!("Took {}", fmt_dur(part2_dur));
+    match day_num {
+        1 => run_day!(day01, &input),
+        2 => run_day!(day02, &input),
+        3 => run_day!(day03, &input),
+        4 => run_day!(day04, &input),
+        5 => run_day!(day05, &input),
+        6 => run_day!(day06, &input),
+        7 => run_day!(day07, &input),
+        8 => run_day!(day08, &input),
+        9 => run_day!(day09, &input),
+        _ => println!("Invalid day number: {}", day_num),
     }
 }

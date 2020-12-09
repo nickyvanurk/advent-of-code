@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-pub fn part1(input: String) {
+pub fn part1(input: &String) -> u64 {
     let numbers = input
         .lines()
         .map(|line| line.parse::<i64>().unwrap())
@@ -33,16 +33,17 @@ pub fn part1(input: String) {
             }
 
             if !found {
-                println!("{}", sum);
-                break;
+                return sum as u64;
             }
         }
 
         set.insert(current);
     }
+
+    0
 }
 
-pub fn part2(input: String) {
+pub fn part2(input: &String) -> u64 {
     let numbers = input
         .lines()
         .map(|line| line.parse::<i64>().unwrap())
@@ -63,8 +64,9 @@ pub fn part2(input: String) {
         sum = set.iter().sum();
 
         if sum == target {
-            println!("{}", set.iter().min().unwrap() + set.iter().max().unwrap());
-            break;
+            return (set.iter().min().unwrap() + set.iter().max().unwrap()) as u64;
         }
     }
+
+    0
 }

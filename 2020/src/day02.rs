@@ -1,4 +1,4 @@
-pub fn part1(input: String) {
+pub fn part1(input: &String) -> u32 {
     let valid_passwords = input
         .lines()
         .filter(|s| {
@@ -11,10 +11,10 @@ pub fn part1(input: String) {
         })
         .count();
 
-    println!("{}", valid_passwords);
+    valid_passwords as u32
 }
 
-pub fn part2(input: String) {
+pub fn part2(input: &String) -> u32 {
     let valid_passwords = input
         .lines()
         .filter(|s| {
@@ -28,5 +28,5 @@ pub fn part2(input: String) {
         })
         .count();
 
-    println!("{}", valid_passwords);
+    valid_passwords as u32
 }

@@ -1,13 +1,13 @@
-pub fn part1(input: String) {
-    println!("{}", get_seat_ids(&input).iter().max().unwrap());
+pub fn part1(input: &String) -> u32 {
+    *get_seat_ids(&input).iter().max().unwrap() as u32
 }
 
-pub fn part2(input: String) {
+pub fn part2(input: &String) -> u32 {
     let seat_ids = get_seat_ids(&input);
     let n = seat_ids.iter().max().unwrap() + seat_ids.iter().min().unwrap();
     let sum = seat_ids.iter().sum::<usize>();
 
-    println!("{}", n * (seat_ids.len() + 1) / 2 - sum); // Gauss sum
+    (n * (seat_ids.len() + 1) / 2 - sum) as u32 // Gauss sum
 }
 
 fn get_seat_ids(input: &String) -> Vec<usize> {

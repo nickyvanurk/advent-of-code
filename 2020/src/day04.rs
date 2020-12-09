@@ -1,6 +1,6 @@
 use regex::Regex;
 
-pub fn part1(input: String) {
+pub fn part1(input: &String) -> u8 {
     let required_fields = vec!["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"];
 
     let valid_passports = input
@@ -8,10 +8,10 @@ pub fn part1(input: String) {
         .filter(|&passport| required_fields.iter().all(|field| passport.contains(field)))
         .count();
 
-    println!("{}", valid_passports);
+    valid_passports as u8
 }
 
-pub fn part2(input: String) {
+pub fn part2(input: &String) -> u8 {
     let validation_rules = vec![
         Regex::new(r"byr:(19[2-9][0-9]|200[0-2])").unwrap(),
         Regex::new(r"iyr:(201[0-9]|2020)").unwrap(),
@@ -27,5 +27,5 @@ pub fn part2(input: String) {
         .filter(|&passport| validation_rules.iter().all(|re| re.is_match(passport)))
         .count();
 
-    println!("{}", valid_passports);
+    valid_passports as u8
 }

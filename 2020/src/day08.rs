@@ -1,13 +1,15 @@
-pub fn part1(input: String) {
+pub fn part1(input: &String) -> u32 {
     let instructions = parse_instructions(&input);
     let (success, accumulator) = run_boot_code(&instructions);
 
     if !success {
-        println!("{}", accumulator);
+        return accumulator as u32;
     }
+
+    0
 }
 
-pub fn part2(input: String) {
+pub fn part2(input: &String) -> u32 {
     let mut instructions = parse_instructions(&input);
 
     for i in 0..instructions.len() {
@@ -20,12 +22,13 @@ pub fn part2(input: String) {
         let (success, accumulator) = run_boot_code(&instructions);
 
         if success {
-            println!("{}", accumulator);
-            break;
+            return accumulator as u32;
         }
 
         switch_operations(&"jmp", &"nop", &mut instructions[i]);
     }
+
+    0
 }
 
 fn switch_operations<'a>(

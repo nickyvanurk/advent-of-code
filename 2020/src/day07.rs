@@ -1,17 +1,13 @@
 use std::collections::HashMap;
 
-pub fn part1(input: String) {
+pub fn part1(input: &String) -> u32 {
     let bags = parse_bag_rules(input);
-    let num_bags = get_num_bags_containing(&"shiny gold", &bags);
-
-    println!("{}", num_bags);
+    get_num_bags_containing(&"shiny gold", &bags) as u32
 }
 
-pub fn part2(input: String) {
+pub fn part2(input: &String) -> u32 {
     let bags = parse_bag_rules(input);
-    let num_bags = get_num_inner_bags(&"shiny gold", &bags);
-
-    println!("{}", num_bags);
+    get_num_inner_bags(&"shiny gold", &bags) as u32
 }
 
 fn get_num_bags_containing(color: &str, bags: &HashMap<String, Vec<(usize, String)>>) -> usize {
@@ -52,7 +48,7 @@ fn get_num_inner_bags(color: &str, bags: &HashMap<String, Vec<(usize, String)>>)
     return 0;
 }
 
-fn parse_bag_rules(input: String) -> HashMap<String, Vec<(usize, String)>> {
+fn parse_bag_rules(input: &String) -> HashMap<String, Vec<(usize, String)>> {
     let mut bags = HashMap::new();
 
     input
