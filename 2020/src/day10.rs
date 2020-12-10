@@ -26,21 +26,23 @@ pub fn part2(input: &String) -> u64 {
         .lines()
         .map(|joltage| joltage.parse::<u8>().unwrap())
         .collect::<Vec<u8>>();
+
     output_joltages.sort();
-    let device_joltage = *output_joltages.last().unwrap();
-    let mut perm = [0usize; 256];
+
+    let device_joltage = *output_joltages.last().unwrap() + 3;
+    let mut result = [0usize; 256];
 
     for i in 0..4 {
-        perm[i] = 1;
+        result[i] = 1;
     }
 
     for joltage in output_joltages {
-        let n = perm[joltage as usize];
+        let n = result[joltage as usize];
 
-        for i in 1..=3 {
-            perm[(joltage as usize) + i] += n;
+        for step in 1..=3 {
+            result[joltage as usize + step] += n;
         }
     }
 
-    perm[device_joltage as usize] as u64
+    result[device_joltage as usize] as u64
 }
