@@ -6,9 +6,7 @@ pub fn part1(input: &String) -> u32 {
         .map(|(i, n)| (n.parse::<u32>().unwrap(), i as u32 + 1))
         .collect::<Vec<(u32, u32)>>();
 
-    let mut turn: u32 = spoken_numbers.len() as u32 + 1;
-
-    while turn < 2020 {
+    for turn in spoken_numbers.len() + 1..=2020 {
         let last_spoken_number = spoken_numbers
             .iter()
             .max_by(|a, b| a.1.cmp(&b.1))
@@ -17,26 +15,24 @@ pub fn part1(input: &String) -> u32 {
 
         if spoken_numbers
             .iter()
-            .filter(|&(number, turn)| number == last_spoken_number)
+            .filter(|&(number, _)| number == last_spoken_number)
             .count()
             == 1
         {
-            spoken_numbers.push((0, turn));
+            spoken_numbers.push((0, turn as u32));
         } else {
             let last_time_spoken = spoken_numbers
                 .iter()
-                .find(|&(number, turn)| number == last_spoken_number && turn < &(turn - 1))
-                .unwrap();
+                .filter(|&(number, _)| number == last_spoken_number)
+                .rev()
+                .skip(1)
+                .collect::<Vec<&(u32, u32)>>()[0];
 
-            println!("{:?}", last_time_spoken);
+            spoken_numbers.push(((turn as u32 - 1) - last_time_spoken.1, turn as u32));
         }
-
-        turn += 1;
     }
 
-    println!("{:?}", spoken_numbers);
-
-    0
+    spoken_numbers.last().unwrap().0
 }
 
 pub fn part2(input: &String) -> u32 {
