@@ -13,7 +13,6 @@ pub fn part1(input: &String) -> u16 {
 
     for _ in 0..6 {
         grid.tick();
-        grid.render();
     }
 
     grid.get_active_cubes()
