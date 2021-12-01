@@ -43,6 +43,7 @@ fn main() {
 
     match day_num {
         1 => run_day!(day01, &input),
+        2 => run_day!(day02, &input),
         _ => println!("Invalid day number: {}", day_num),
     }
 }

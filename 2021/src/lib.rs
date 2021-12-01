@@ -2,6 +2,7 @@ use std::env;
 use std::fs;
 
 pub mod day01;
+pub mod day02;
 
 pub fn read_input(day_num: u8) -> String {
     let cwd = env::current_dir().unwrap();
