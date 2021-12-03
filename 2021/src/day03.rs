@@ -1,9 +1,9 @@
 pub fn part1(input: &String) -> u32 {
-    let input: Vec<u16> = input.trim().lines().map(|s| u16::from_str_radix(s, 2).unwrap()).collect();
+    let input: Vec<&str> = input.trim().lines().collect();
 
     let mut bits: String = String::from("");
     for i in 0..12 {
-        bits += &get_most_common_bit(&input, i).to_string();
+        bits += &get_nth_most_common_bit(&input, i).to_string();
     }
     
     let gamma_rate = u16::from_str_radix(&bits, 2).unwrap();
@@ -13,49 +13,40 @@ pub fn part1(input: &String) -> u32 {
 }
 
 pub fn part2(input: &String) -> u32 {
-    let input: Vec<u16> = input.trim().lines().map(|s| u16::from_str_radix(s, 2).unwrap()).collect();
+    let input: Vec<&str> = input.trim().lines().collect();
     
-    let mut oxygen_generator_rating = 0;
-    let mut input_left: Vec<u16> = input.clone();
-    for i in 0..12 {
-        let bit = get_most_common_bit(&input_left, i);
+    let oxygen_generator_rating = get_rating(&input, true);
+    let co2_scrubber_rating = get_rating(&input, false);
 
-        input_left = input_left.iter().cloned().filter(|data| {
-            bit == data >> (11 - i) & 1
-        }).collect();
-
-        if input_left.iter().count() == 1 {
-            oxygen_generator_rating = *input_left.first().unwrap();
-            break;
-        }
-    }
-
-    let mut co2_scrubber_rating = 0;
-    let mut input_left = input.clone();
-    for i in 0..12 {
-        let bit = get_most_common_bit(&input_left, i);
-
-        input_left = input_left.iter().cloned().filter(|data| {
-            bit != data >> (11 - i) & 1
-        }).collect();
-
-        if input_left.iter().count() == 1 {
-            co2_scrubber_rating = *input_left.first().unwrap();
-            break;
-        }
-    }
-    
     oxygen_generator_rating as u32 * co2_scrubber_rating as u32
 }
 
-fn get_most_common_bit(input: &Vec<u16>, idx: usize) -> u16 {
-    let mut bit_num = 0;
-    let mut input_length = 0;
+fn get_rating(input: &Vec<&str>, most_common: bool) -> u16 {
+    let mut input_clone = input.clone();
 
-    for data in input.iter() {
-        input_length += 1;
-        bit_num += data >> (11 - idx) & 1;
+    for i in 0..12 {
+        let bit = get_nth_most_common_bit(&input_clone, i);
+        input_clone = input_clone.iter().cloned().filter(|line| {
+            (if most_common { bit } else { !bit & 1 }) == get_nth_bit(line, i)
+        }).collect();
+
+        if input_clone.len() == 1 {
+            break;
+        }
     }
 
-    if bit_num >= (input_length - bit_num) { 1 } else { 0 }
+    binary_string_to_u16(input_clone.first().unwrap())
+}
+
+fn get_nth_most_common_bit(input: &Vec<&str>, idx: usize) -> u16 {
+    let total_positive_bits = input.iter().fold(0, |acc, line| acc + get_nth_bit(line, idx));
+    (total_positive_bits as f64 / input.len() as f64).round() as u16
+}
+
+fn get_nth_bit(line: &str, idx: usize) -> u16 {
+    (line.as_bytes()[idx] as char).to_digit(2).unwrap() as u16
+}
+
+fn binary_string_to_u16(s: &str) -> u16 {
+    u16::from_str_radix(s, 2).unwrap()
 }
