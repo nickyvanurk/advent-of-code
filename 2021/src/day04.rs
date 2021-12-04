@@ -17,8 +17,20 @@ pub fn part1(input: &String) -> u32 {
 
 pub fn part2(input: &String) -> u32 {
     let random_numbers = parse_random_numbers(input);
-   
-    0
+    let mut boards = parse_boards(input);
+    let mut score = 0;
+
+    for random_number in random_numbers {
+        for board in &mut boards {
+            if board.mark(random_number) {
+                if !board.has_bingo() && board.is_bingo() {
+                    score = board.sum_unmarked() as u32 * random_number as u32;
+                }
+            }
+        }
+    }
+
+    score
 }
 
 fn parse_random_numbers(input: &String) -> Vec<u8> {
@@ -47,7 +59,8 @@ struct Board {
     width: u8,
     height: u8,
     data: Vec<u8>,
-    marked: u32
+    marked: u32,
+    has_bingo: bool,
 }
 
 impl Board {
@@ -56,11 +69,16 @@ impl Board {
             width,
             height,
             data,
-            marked: 0
+            marked: 0,
+            has_bingo: false
         }
     }
 
-    fn is_bingo(&self) -> bool {
+    fn has_bingo(&self) -> bool {
+        self.has_bingo
+    }
+
+    fn is_bingo(&mut self) -> bool {
         let mut row = vec![];
         let mut col = vec![];
 
@@ -69,8 +87,9 @@ impl Board {
                 row.push(if self.is_marked((y * self.width + x) as usize) { 1 } else { 0 });
             }   
 
-            if self.is_all_same(&row) {
-                return true;
+            if self.is_all_marked(&row) {
+                self.has_bingo = true;
+                break;
             }
 
             row.clear();
@@ -81,17 +100,18 @@ impl Board {
                 col.push(if self.is_marked((y * self.width + x) as usize) { 1 } else { 0 });
             }   
 
-            if self.is_all_same(&col) {
-                return true;
+            if self.is_all_marked(&col) {
+                self.has_bingo = true;
+                break;
             }
 
             col.clear();
         }
 
-        false
+        self.has_bingo
     }
 
-    fn is_all_same(&self, numbers: &Vec<u8>) -> bool {
+    fn is_all_marked(&self, numbers: &Vec<u8>) -> bool {
         numbers.iter().fold(0, |acc, &n| acc + n) == self.width
     }
     
@@ -99,7 +119,7 @@ impl Board {
        return match self.find_number(number) {
             Some(indexes) => {
                 for i in indexes {
-                    self.marked = self.marked | 1 << i
+                    self.marked = self.marked | 1 << i;
                 }
 
                 true
