@@ -1,23 +1,17 @@
 pub fn part1(input: &String) -> u32 {
     let random_numbers = parse_random_numbers(input);
-    let boards = parse_boards(input);
+    let mut boards = parse_boards(input);
 
-    println!("{:?}", boards);
+    for random_number in random_numbers {
+        for board in &mut boards {
+            if board.mark(random_number) {
+                if board.is_bingo() {
+                    return board.sum_unmarked() as u32 * random_number as u32;
+                }
+            }
+        }
+    }
 
-    // Sum of all unmarked * last random number drawn
-
-    // score = 0
-
-    // For each random number
-    //      For each board
-    //          let is_won = board.mark(random_number)
-    //           
-    //          if is_won
-    //              score = board.sum_unmarked() * random_number
-    
-
-    // return score
-    
     0
 }
 
@@ -27,8 +21,8 @@ pub fn part2(input: &String) -> u32 {
     0
 }
 
-fn parse_random_numbers(input: &String) -> Vec<u32> {
-    input.trim().split('\n').nth(0).unwrap().split(',').map(|s| s.parse::<u32>().unwrap()).collect()
+fn parse_random_numbers(input: &String) -> Vec<u8> {
+    input.trim().split('\n').nth(0).unwrap().split(',').map(|s| s.parse::<u8>().unwrap()).collect()
 }
 
 fn parse_boards(input: &String) -> Vec<Board> {
@@ -52,7 +46,8 @@ fn parse_boards(input: &String) -> Vec<Board> {
 struct Board {
     width: u8,
     height: u8,
-    data: Vec<u8>
+    data: Vec<u8>,
+    marked: u32
 }
 
 impl Board {
@@ -61,6 +56,83 @@ impl Board {
             width,
             height,
             data,
+            marked: 0
         }
+    }
+
+    fn is_bingo(&self) -> bool {
+        let mut row = vec![];
+        let mut col = vec![];
+
+        for y in 0..self.height {
+            for x in 0..self.width {
+                row.push(if self.is_marked((y * self.width + x) as usize) { 1 } else { 0 });
+            }   
+
+            if self.is_all_same(&row) {
+                return true;
+            }
+
+            row.clear();
+        }
+
+        for x in 0..self.width {
+            for y in 0..self.height {
+                col.push(if self.is_marked((y * self.width + x) as usize) { 1 } else { 0 });
+            }   
+
+            if self.is_all_same(&col) {
+                return true;
+            }
+
+            col.clear();
+        }
+
+        false
+    }
+
+    fn is_all_same(&self, numbers: &Vec<u8>) -> bool {
+        numbers.iter().fold(0, |acc, &n| acc + n) == self.width
+    }
+    
+    fn mark(&mut self, number: u8) -> bool {
+       return match self.find_number(number) {
+            Some(indexes) => {
+                for i in indexes {
+                    self.marked = self.marked | 1 << i
+                }
+
+                true
+            },
+            None => false,
+        };
+    }
+
+    fn find_number(&self, number:u8) -> Option<Vec<usize>> {
+        let mut indexes = vec![];
+
+        for (i, &n) in self.data.iter().enumerate() {
+            if n == number {
+                indexes.push(i);
+            }
+        }
+
+        if indexes.len() > 0 { Some(indexes) } else { None }
+    }
+
+    fn sum_unmarked(&self) -> u16 {
+        self.sum() - self.sum_marked()
+    }
+
+    fn sum_marked(&self) -> u16 {
+        self.data.iter().enumerate().fold(0, |acc, (i, &n)| acc + (if self.is_marked(i) { n as u16 } else { 0 })) as u16
+    }
+
+    fn sum(&self) -> u16 {
+        self.data.iter().fold(0, |acc, &n| acc + n as u16)
+    }
+
+    fn is_marked(&self, idx: usize) -> bool {
+        self.marked & 1 << idx != 0
     }
 }
