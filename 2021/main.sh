@@ -17,4 +17,4 @@
 #  If no arguments are given, user will be prompted for the day on stdin.
 # Your code will be passed the input and timed automatically.
 
-cargo run 4
+cargo run 5
