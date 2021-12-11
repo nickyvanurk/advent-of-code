@@ -64,18 +64,21 @@ fn count_flashes(input: &mut Vec<Vec<u32>>) -> u32 {
     flashes
 }
 
-fn print_input(input: &Vec<Vec<u32>>) {
-    for row in input {
-        for x in row {
-            print!("{}", x);
-        }
-
-        println!("");
-    }
-}
-
 pub fn part2(input: &String) -> u32 {
     let mut input: Vec<Vec<u32>> = input.lines().map(|s| s.chars().map(|s| s.to_digit(10).unwrap()).collect()).collect();
-    
+    let total_elements = (input.len() * input[0].len()) as u32;
+
+    for step in 1..=999 {
+        for y in 0..input.len() {
+            for x in 0..input[y].len() {
+                input[y][x] += 1;
+            }
+        }
+
+        if count_flashes(&mut input) == total_elements {
+            return step;
+        }
+    }
+
     0
 }
