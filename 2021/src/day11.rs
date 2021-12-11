@@ -1,62 +1,68 @@
 pub fn part1(input: &String) -> u32 {
-    let mut input: Vec<Vec<u32>> = input.lines().map(|s| s.chars().map(|s| s.to_digit(10).unwrap()).collect()).collect();
+    let mut input: Vec<u32> = input.replace('\n', "").chars().map(|s| s.to_digit(10).unwrap()).collect();
+    let size = 10;
+
     let mut total_flashes = 0;
 
     for _step in 1..=100 {
-        for y in 0..input.len() {
-            for x in 0..input[y].len() {
-                input[y][x] += 1;
+        for y in 0..size {
+            for x in 0..size {
+                input[y * size + x] += 1;
             }
         }
 
-        total_flashes += count_flashes(&mut input);
+        total_flashes += count_flashes(&mut input, size);
     }
 
     total_flashes
 }
 
-fn count_flashes(input: &mut Vec<Vec<u32>>) -> u32 {
-    let mut flashes = 0;
+pub fn part2(input: &String) -> u32 {
+    let mut input: Vec<u32> = input.replace('\n', "").chars().map(|s| s.to_digit(10).unwrap()).collect();
+    let size = 10;
+    
+    let total_octopuses = (size*size) as u32;
 
-    for y in 0..input.len() {
-        for x in 0..input[y].len() {
-            if input[y][x] >= 10 {
-                input[y][x] = 0;
+    for step in 1..=500 {
+        for y in 0..size {
+            for x in 0..size {
+                input[y * size + x] += 1;
+            }
+        }
+
+        if count_flashes(&mut input, size) == total_octopuses {
+            return step;
+        }
+    }
+
+    0
+}
+
+fn count_flashes(input: &mut Vec<u32>, size: usize) -> u32 {
+    let mut flashes = 0;
+    let max_idx = size - 1;
+
+    for y in 0..size {
+        for x in 0..size {
+            let idx = y * size + x;
+
+            if input[idx] >= 10 {
+                input[idx] = 0;
                 flashes += 1;
 
-                if x > 0  && input[y][x - 1] > 0 {
-                    input[y][x - 1] += 1;
-                }
+                if x > 0 && !flashing(input[idx - 1]) { input[idx - 1] += 1; }                                      // W
+                if x < max_idx && !flashing(input[idx + 1]) { input[idx + 1] += 1; }                                // E
 
-                if x < input[y].len() - 1 && input[y][x + 1] > 0  {
-                    input[y][x + 1] += 1;
-                }
+                if y > 0 && !flashing(input[idx - size]) { input[idx - size] += 1; }                                // N
+                if y < max_idx && !flashing(input[idx + size]) { input[idx + size] += 1; }                          // S
 
-                if y > 0  && input[y - 1][x] > 0  {
-                    input[y - 1][x] += 1;
-                }
+                if x > 0 && y > 0 && !flashing(input[idx - size - 1]) { input[idx - size - 1] += 1; }               // NW
+                if x > 0 && y < max_idx && !flashing(input[idx + size - 1]) { input[idx + size - 1] += 1; }         // SW
 
-                if y < input.len() - 1 && input[y + 1][x] > 0  {
-                    input[y + 1][x] += 1;
-                }
+                if x < max_idx && y > 0 && !flashing(input[idx - size + 1]) { input[idx - size + 1] += 1; }         // NE
+                if x < max_idx  && y < max_idx && !flashing(input[idx + size + 1]) { input[idx + size + 1] += 1; }  // SE
 
-                if x > 0 && y > 0 && input[y - 1][x - 1] > 0  {
-                    input[y - 1][x - 1] += 1;
-                }
-
-                if x > 0 && y < input.len() - 1 && input[y + 1][x - 1] > 0  {
-                    input[y + 1][x - 1] += 1;
-                }
-
-                if x < input[y].len() - 1  && y > 0 && input[y - 1][x + 1] > 0  {
-                    input[y - 1][x + 1] += 1;
-                }
-
-                if x < input[y].len() - 1  && y < input.len() - 1 && input[y + 1][x + 1] > 0  {
-                    input[y + 1][x + 1] += 1;
-                }
-
-                flashes += count_flashes(input);
+                flashes += count_flashes(input, size);
             }
         }
     }
@@ -64,21 +70,6 @@ fn count_flashes(input: &mut Vec<Vec<u32>>) -> u32 {
     flashes
 }
 
-pub fn part2(input: &String) -> u32 {
-    let mut input: Vec<Vec<u32>> = input.lines().map(|s| s.chars().map(|s| s.to_digit(10).unwrap()).collect()).collect();
-    let total_elements = (input.len() * input[0].len()) as u32;
-
-    for step in 1..=999 {
-        for y in 0..input.len() {
-            for x in 0..input[y].len() {
-                input[y][x] += 1;
-            }
-        }
-
-        if count_flashes(&mut input) == total_elements {
-            return step;
-        }
-    }
-
-    0
+fn flashing(num: u32) -> bool {
+    num == 0
 }
