@@ -1,6 +1,20 @@
 use std::collections::HashSet;
 
 pub fn part1(input: &String) -> u32 {
+    let (mut points, folds) = parse_input(&input);
+    let &(axis, line) = folds.first().unwrap();
+    fold(&mut points, axis, line);
+    points.len() as u32
+}
+
+pub fn part2(input: &String) -> u32 {
+    let (mut points, folds) = parse_input(&input);
+    folds.iter().for_each(|&(axis, line)| fold(&mut points, axis, line));
+    print_points(&points);
+    points.len() as u32
+}
+
+fn parse_input(input: &String) -> (HashSet<(u32, u32)>, Vec<(&str, u32)>) {
     let mut points = HashSet::new();
     let mut folds: Vec<(&str, u32)> = vec![];
 
@@ -14,33 +28,21 @@ pub fn part1(input: &String) -> u32 {
         }
     }
 
-    let &(axis, fold) = folds.first().unwrap();
-
-    if axis == "y" {
-        let mut points_below_fold = points.clone();
-        points_below_fold.retain(|&(_x, y)| y > fold);
-        points.retain(|&(_x, y)| y <= fold);
-
-        for &(x, y) in &points_below_fold {
-            points.insert((x, y - 2 * (y - fold)));
-        }
-    } else {
-        let mut points_below_fold = points.clone();
-        points_below_fold.retain(|&(x, _y)| x > fold);
-        points.retain(|&(x, _y)| x <= fold);
-
-        for &(x, y) in &points_below_fold {
-            points.insert((x - 2 * (x - fold), y));
-        }
-    }
-
-    points.len() as u32
+    (points, folds)
 }
 
-pub fn part2(input: &String) -> u32 {
-    let input = input.lines();
+fn fold(points: &mut HashSet<(u32, u32)>, axis: &str, line: u32) {
+    let mut points_below_fold = points.clone();
 
-    0
+    if axis == "y" {
+        points_below_fold.retain(|&(_x, y)| y > line);
+        points.retain(|&(_x, y)| y <= line);
+        points_below_fold.iter().for_each(|&(x, y)| { points.insert((x, y - 2 * (y - line))); });
+    } else {
+        points_below_fold.retain(|&(x, _y)| x > line);
+        points.retain(|&(x, _y)| x <= line);
+        points_below_fold.iter().for_each(|&(x, y)| { points.insert((x - 2 * (x - line), y)); });
+    }
 }
 
 fn print_points(points: &HashSet<(u32, u32)>) {
