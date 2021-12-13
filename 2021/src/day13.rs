@@ -14,14 +14,48 @@ pub fn part1(input: &String) -> u32 {
         }
     }
 
-    println!("{:?}", points);
-    println!("{:?}", folds);
+    let &(axis, fold) = folds.first().unwrap();
 
-    0
+    if axis == "y" {
+        let mut points_below_fold = points.clone();
+        points_below_fold.retain(|&(_x, y)| y > fold);
+        points.retain(|&(_x, y)| y <= fold);
+
+        for &(x, y) in &points_below_fold {
+            points.insert((x, y - 2 * (y - fold)));
+        }
+    } else {
+        let mut points_below_fold = points.clone();
+        points_below_fold.retain(|&(x, _y)| x > fold);
+        points.retain(|&(x, _y)| x <= fold);
+
+        for &(x, y) in &points_below_fold {
+            points.insert((x - 2 * (x - fold), y));
+        }
+    }
+
+    points.len() as u32
 }
 
 pub fn part2(input: &String) -> u32 {
     let input = input.lines();
 
     0
+}
+
+fn print_points(points: &HashSet<(u32, u32)>) {
+    let width = points.iter().max_by_key(|&(x, _y)| x).unwrap().0;
+    let height = points.iter().max_by_key(|&(_x, y)| y).unwrap().1;
+
+    for y in 0..=height {
+        for x in 0..=width {
+            if points.contains(&(x, y)) {
+                print!("#");
+            } else {
+                print!(".");
+            }
+        }
+
+        println!("");
+    }
 }
