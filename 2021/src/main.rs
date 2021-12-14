@@ -55,6 +55,7 @@ fn main() {
         11 => run_day!(day11, &input),
         12 => run_day!(day12, &input),
         13 => run_day!(day13, &input),
+        14 => run_day!(day14, &input),
         _ => println!("Invalid day number: {}", day_num),
     }
 }
