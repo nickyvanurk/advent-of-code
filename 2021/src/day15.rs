@@ -5,8 +5,8 @@ use std::collections::BinaryHeap;
 pub fn part1(input: &String) -> u32 {
     let size = input.lines().nth(0).unwrap().chars().count() as u32;
     let data = input.replace("\n", "").chars().map(|d| d.to_digit(10).unwrap()).collect::<Vec<u32>>();
-    let grid = Grid::new(data, size, size);
 
+    let grid = Grid::new(data, size, size);
     let start = Point { x: 0, y: 0 };
     let end = Point { x: (size - 1) as i32, y: (size - 1) as i32 };
 
@@ -14,12 +14,48 @@ pub fn part1(input: &String) -> u32 {
 }
 
 pub fn part2(input: &String) -> u32 {
-    let input = input.lines().map(|l| l.chars().map(|d| d.to_digit(10).unwrap()).collect()).collect::<Vec<Vec<u32>>>();
+    let factor = 5;
+    let size = input.lines().nth(0).unwrap().chars().count() as u32 * factor;
 
-    0
+    let mut data = input.lines().map(|l| {
+        let mut line = String::from(l);
+        for _ in 1..factor {
+            line.push_str(l);
+        }
+
+        let mut digits = vec![];
+        for (i, c) in line.chars().enumerate() {
+            digits.push(((c.to_digit(10).unwrap() - 1) + i as u32 / ( size / factor)) % 9 + 1);
+        }
+
+        digits
+    }).flatten().collect::<Vec<u32>>();
+    
+    for i in 1..factor {
+        data.append(&mut data.clone().into_iter().take((size * (size / factor)) as usize).map(|d| (d - 1 + i) % 9 + 1).collect::<Vec<u32>>());
+    }
+
+    let grid = Grid::new(data, size, size);
+    let start = Point { x: 0, y: 0 };
+    let end = Point { x: (size - 1) as i32, y: (size - 1) as i32 };
+
+    get_lowest_risk_score(&grid, &start, &end)
 }
 
 fn get_lowest_risk_score(grid: &Grid, start: &Point, end: &Point) -> u32 {
+    let came_from = dijkstra_search(&grid, &start, &end);
+    let mut total_risk = 0;
+    
+    let mut current = *end;
+    while current != *start {
+        total_risk += grid.risk_level(&current);
+        current = came_from[&current];
+    }
+
+    total_risk
+}
+
+fn dijkstra_search(grid: &Grid, start: &Point, end: &Point) -> HashMap<Point, Point>{
     let mut frontier = BinaryHeap::new();
     frontier.push(Cell{ position: *start, cost: 0 });
 
@@ -43,14 +79,7 @@ fn get_lowest_risk_score(grid: &Grid, start: &Point, end: &Point) -> u32 {
         }
     }
 
-    let mut total_risk = 0;
-    let mut current = *end;
-    while current != *start {
-        total_risk += grid.risk_level(&current);
-        current = came_from[&current];
-    }
-
-    total_risk
+    came_from
 }
 
 #[derive(Debug, Eq, PartialEq, Hash, Copy, Clone)]
