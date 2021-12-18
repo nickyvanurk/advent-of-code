@@ -4,9 +4,10 @@ pub fn part1(input: &String) -> u32 {
     let input = input.lines();
 
     for line in input {
-        if explode(&line) {
-            println!("Explosion!");
-        }
+        let mut l = String::from(line);
+        while explode(&mut l) {}
+
+        println!("{:?}", l);
     }
 
     0
@@ -18,97 +19,52 @@ pub fn part2(input: &String) -> u32 {
     0
 }
 
-fn explode(line: &str) -> bool {
-    let mut depth = 1;
-    let mut numbers: VecDeque<u8> = VecDeque::new();
-    let mut brackets = vec!['['];
+fn explode(line: &mut String) -> bool {
+    let mut start_idx = 0;
+    let mut depth = 0;
 
-    let mut last_character = '[';
-    let mut to_add = 0;
+    let mut numbers: VecDeque<u32> = line.matches(char::is_numeric).map(|c| c.parse::<u32>().unwrap()).collect();
+    let mut prev_numbers = vec![];
 
-    let mut exploded = false;
+    for (i, c) in line.clone().chars().enumerate() {    
+        if c == '[' {
+            start_idx = i;
+            depth += 1;
+        }
+        
+        if c == ']' {
+            depth -= 1;
+            
+            if (i - start_idx) == 4 && depth >= 4 {
+                let n2 = prev_numbers.pop().unwrap();
+                let n1 = prev_numbers.pop().unwrap();
+                let s = format!("[{},{}]", n1, n2);
+                *line = line.replace(&s[0..], "0");
 
-    for character in line.chars().skip(1) {
-        match character {
-            '[' => {
-                depth += 1;
-                brackets.push(character);
-            }
-            ']' => {
-                depth -= 1;
-                if to_add == 0 {
-                    brackets.push(character);
+                if let Some(next) = numbers.pop_front() {
+                    let mut l = String::from(&line[0..i-2]);
+                    l.push_str(&line[i-2..].replacen(char::is_numeric, &format!("{}", next + n2)[0..], 1));
+                    *line = l;
                 }
-            }
-            '0'..='9' => {
-                let number = character.to_digit(10).unwrap() as u8 + to_add;
-                to_add = 0;
 
-                if last_character == ',' && depth > 4 {
-                    let last_number = numbers.pop_back().unwrap();
-
-                    if let Some(previous_number) = numbers.back_mut() {
-                        *previous_number += last_number;
+                if let Some(prev) = prev_numbers.last() {
+                    if let Some(pos) = String::from(&line[0..start_idx]).rfind(&format!("{}", prev)) {
+                        let mut l = String::from(&line[..start_idx]);
+                        l.replace_range(pos..start_idx, &format!("{}", prev + n1)[0..]);
+                        l.push_str(&line[pos+1..]);
+                        *line = l;
                     }
-
-                    brackets.pop();
-                    numbers.push_back(0);
-
-                    to_add = number;
-                    exploded = true;
-                } else {
-                    numbers.push_back(number);
                 }
+
+                return true
             }
-            _ => (),
         }
 
-        last_character = character;
-    }
-
-    println!("{:?}", line);
-    println!("{:?}", brackets);
-    println!("{:?}", numbers);
-
-    let mut previous_bracket = '[';
-    let mut new_line = String::new();
-    for (i, &bracket) in brackets.iter().enumerate() {
-        match bracket {
-            '[' => {
-                if previous_bracket != bracket {
-                    new_line.push(',')
-                }
-
-                new_line.push(bracket);
-
-                if let Some(next_bracket) = brackets.iter().nth(i + 1) {
-                    if bracket != *next_bracket {
-                        new_line = format!("{}{}", new_line, numbers.pop_front().unwrap());
-                        new_line.push(',');
-                    }
-                }
-            }
-            ']' => {
-                println!("p {}", previous_bracket);
-                println!("c {}", bracket);
-                if numbers.len() >= 2 {
-                    if previous_bracket != bracket {
-                        new_line = format!("{}{}", new_line, numbers.pop_front().unwrap());
-                        new_line.push(']');
-                    } else {
-                        new_line.push(',');
-                        new_line = format!("{}{}", new_line, numbers.pop_front().unwrap());
-                        new_line.push(']');
-                    }
-                }
-            }
-            _ => (),
+        if c.is_digit(10) {
+            let d = numbers.pop_front().unwrap();
+            prev_numbers.push(d);
         }
-
-        previous_bracket = bracket;
     }
 
-    println!("{:?}", new_line);
-
-    exploded
+    false
 }
