@@ -161,32 +161,34 @@ fn find_relative_beacons(scanners: &Vec<Scanner>) {
 
                 // facing, then 'up' from remaining 2 axis
 
-                for up in vec![1, 0, 0].iter().permutations(3).unique() {
-                    println!("{:?}", up);
 
                     // Kinda unsure how to proceed
 
-                    let items = vec![1, 1, 1, -1, -1, -1];
-                    for f in items.iter().permutations(3).unique() {
-                        let x = p0.x * f[0] + p1.x;
-                        let y = p0.y * f[1] + p1.y;
-                        let z = p0.z * f[2] + p1.z;
+                let items = vec![1, 1, 1, -1, -1, -1];
+                for f in items.iter().permutations(3).unique() {
+                    let x = p0.x * f[0] + p1.x;
+                    let y = p0.y * f[1] + p1.y;
+                    let z = p0.z * f[2] + p1.z;
 
-                        let found = shared_beacons.iter().all(|(a, b)| {
-                            let a = a.position;
-                            let b = b.position;
-                            
-                            a.x * f[0] + b.x == x &&
-                            a.y * f[1] + b.y == y &&
-                            a.z * f[2] + b.z == z
-                        });
+                    for up in vec![1, 1, -1, -1].iter().permutations(2).unique() {
+                        println!("{:?}", up);
 
-                        if found {
-                            facing.x = x;
-                            facing.y = y;
-                            facing.z = z;
-                            break;
-                        }
+                    }
+
+                    let found = shared_beacons.iter().all(|(a, b)| {
+                        let a = a.position;
+                        let b = b.position;
+                        
+                        a.x * f[0] + b.x == x &&
+                        a.y * f[1] + b.y == y &&
+                        a.z * f[2] + b.z == z
+                    });
+
+                    if found {
+                        facing.x = x;
+                        facing.y = y;
+                        facing.z = z;
+                        break;
                     }
                 }
 

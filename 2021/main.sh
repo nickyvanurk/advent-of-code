@@ -1,4 +1,4 @@
 #!/bin/bash
 # Advent of Code Rust Template
 
-cargo run 19
+cargo run 20
