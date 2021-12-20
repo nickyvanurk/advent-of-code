@@ -7,15 +7,18 @@ pub fn part1(input: &String) -> u32 {
     let mut image = Image::new(input.skip(1).map(|l| l.chars().collect()).collect());
 
     image.enhance(&algorithm, 2);
-    println!("{}", image);
 
     image.light_pixels()
 }
 
 pub fn part2(input: &String) -> u32 {
-    let input = input.lines();
+    let mut input = input.lines();
+    let algorithm = input.nth(0).unwrap().chars().collect::<Vec<char>>();
+    let mut image = Image::new(input.skip(1).map(|l| l.chars().collect()).collect());
 
-    0
+    image.enhance(&algorithm, 50);
+
+    image.light_pixels()
 }
 
 struct Image {
