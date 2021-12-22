@@ -15,6 +15,7 @@ pub fn part1(input: &String) -> u32 {
     }
 
     steps = steps.into_iter().filter(|Step { x, y, z, .. }| {
+        x.0 >= 0 && y.0 >= 0 && z.0 >= 0 &&
         x.1 <= region_size && y.1 <= region_size && z.1 <= region_size
     }).collect();
 
@@ -40,6 +41,23 @@ pub fn part1(input: &String) -> u32 {
 
 pub fn part2(input: &String) -> u32 {
     let input = input.lines();
+    let mut steps = vec![];
+    let region_size = 100;
+    let region_half_size = region_size / 2;
+
+    for line in input {
+        let mut s = line.split(&[' ', ','][..]);
+        steps.push(Step { 
+            action: String::from(s.next().unwrap()),
+            x: parse_step_axis_into_tuple_and_translate(s.next().unwrap(), region_half_size),
+            y: parse_step_axis_into_tuple_and_translate(s.next().unwrap(), region_half_size),
+            z: parse_step_axis_into_tuple_and_translate(s.next().unwrap(), region_half_size),
+        });
+    }
+
+    for step in steps {
+        println!("{:?}", step);
+    }
 
     0
 }
@@ -47,13 +65,17 @@ pub fn part2(input: &String) -> u32 {
 #[derive(Debug)]
 struct Step {
     action: String,
-    x: (u32, u32),
-    y: (u32, u32),
-    z: (u32, u32),
+    x: (i32, i32),
+    y: (i32, i32),
+    z: (i32, i32),
 }
 
-fn parse_step_axis_into_tuple_and_translate(data: &str, translation: u32) -> (u32, u32) {
+fn parse_step_axis_into_tuple_and_translate(data: &str, translation: i32) -> (i32, i32) {
     let mut parts = data[2..].split("..");
-    ((parts.next().unwrap().parse::<i32>().unwrap() + translation as i32) as u32,
-     (parts.next().unwrap().parse::<i32>().unwrap() + translation as i32) as u32)
+    (parts.next().unwrap().parse::<i32>().unwrap() + translation,
+     parts.next().unwrap().parse::<i32>().unwrap() + translation)
+}
+
+fn overlap(step1: &Step, step2: &Step) {
+
 }
