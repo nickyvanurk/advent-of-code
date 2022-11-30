@@ -1,0 +1,15 @@
+[package]
+name = "advent_of_code"
+version = "0.1.0"
+authors = ["Nicky van Urk <info@nickyvanurk.com>"]
+edition = "2018"
+
+[dependencies]
+criterion = { version = "0.3", features = ["html_reports"] }
+regex = "1"
+itertools = "0.9.0"
+hex="0.4.3"
+
+[[bench]]
+name = "bench"
+harness = false
