@@ -44,7 +44,7 @@ fn main() {
     match day_num {
         1 => run_day!(day01, input.trim()),
         2 => run_day!(day02, input.trim()),
-        // 3 => run_day!(day03, input.trim()),
+        3 => run_day!(day03, input.trim()),
         // 4 => run_day!(day04, input.trim()),
         // 5 => run_day!(day05, input.trim()),
         // 6 => run_day!(day06, input.trim()),
