@@ -47,7 +47,7 @@ fn main() {
         3 => run_day!(day03, input.trim()),
         4 => run_day!(day04, input.trim()),
         5 => run_day!(day05, &input),
-        // 6 => run_day!(day06, input.trim()),
+        6 => run_day!(day06, input.trim()),
         // 7 => run_day!(day07, input.trim()),
         // 8 => run_day!(day08, input.trim()),
         // 9 => run_day!(day09, input.trim()),
