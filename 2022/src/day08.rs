@@ -62,9 +62,57 @@ pub fn part1(input: &str) -> u32 {
 }
 
 pub fn part2(input: &str) -> u32 {
-    0
+    let grid: Vec<Vec<u32>> = input.lines().map(|s| {
+        s.chars().map(|c| c.to_digit(10).unwrap()).collect()
+    }).collect::<Vec<Vec<u32>>>();
+
+    let mut scene_scores = vec![];
+    let grid_size = (grid[0].len(), grid.len());
+
+    for y in 1..grid_size.1 - 1 {
+        for x in 1..grid_size.0 - 1 {
+            scene_scores.push(scene_score(x, y, &grid));
+        }
+    }
+
+    scene_scores.into_iter().max().unwrap() as u32
 }
 
 fn is_border(x: usize, y: usize, grid_size: (usize, usize)) -> bool {
     x == 0 || y == 0 || x == grid_size.0 - 1 || y == grid_size.1 -1
+}
+
+fn scene_score(x: usize, y: usize, grid: &Vec<Vec<u32>>) -> u32 {
+    let mut score = 1;
+    let tree = grid[y][x];
+
+    for (idx, x) in (0..x).rev().enumerate() {
+        if grid[y][x] >= tree || x == 0{
+            score *= idx + 1;
+            break;
+        }
+    }
+
+    for (idx, x) in (x + 1..grid[0].len()).enumerate() {
+        if grid[y][x] >= tree || x == grid[0].len() - 1 {
+            score *= idx + 1;
+            break;
+        }
+    }
+
+    for (idx, y) in (0..y).rev().enumerate() {
+        if grid[y][x] >= tree || y == 0{
+            score *= idx + 1;
+            break;
+        }
+    }
+
+    for (idx, y) in (y + 1..grid.len()).enumerate() {
+        if grid[y][x] >= tree || y == grid.len() - 1 {
+            score *= idx + 1;
+            break;
+        }
+    }
+
+    score as u32
 }
