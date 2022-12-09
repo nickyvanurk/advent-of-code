@@ -41,7 +41,51 @@ pub fn part1(input: &str) -> u32 {
 }
 
 pub fn part2(input: &str) -> u32 {
-    0
+    let starting_position = Point { x: 0, y: 0 };
+
+    let mut knots = vec![];
+    for _ in 0..10 {
+        knots.push(starting_position);
+    }
+
+    let mut tail_visited_points = HashSet::new();
+    tail_visited_points.insert(starting_position);
+
+    for line in input.lines() {
+        let a = line.split(' ').collect::<Vec<&str>>();
+        let instruction = a[0];
+        let value = a[1].parse::<i32>().unwrap();
+
+        for _ in 0..value {
+            match instruction {
+                "U" => knots[0].y -= 1,
+                "D" => knots[0].y += 1,
+                "L" => knots[0].x -= 1,
+                "R" => knots[0].x += 1,
+                _ => println!("Instruction not found.")
+            }
+
+            for i in 1..knots.len() {
+                if knots[i].distance_to(&knots[i - 1]) >= 2.0 {
+                    if i32::abs(knots[i - 1].x - knots[i].x) > 0 {
+                        let direction = (knots[i - 1].x - knots[i].x) / i32::abs(knots[i - 1].x - knots[i].x);
+                        knots[i].x += direction;
+                    }
+
+                    if i32::abs(knots[i - 1].y - knots[i].y) > 0 {
+                        let direction = (knots[i - 1].y - knots[i].y) / i32::abs(knots[i - 1].y - knots[i].y);
+                        knots[i].y += direction;
+                    }
+
+                    if i == knots.len() - 1 {
+                        tail_visited_points.insert(knots[i]);
+                    }
+                }
+            }
+        }
+    }
+
+    tail_visited_points.len() as u32
 }
 
 #[derive(Copy, Clone, Hash)]
@@ -62,23 +106,3 @@ impl PartialEq for Point {
     }
 }
 impl Eq for Point {}
-
-fn print_moves(head_position: &Point, tail_position: &Point) {
-    for y in -4..1 {
-        for x in 0..6 {
-
-            // print!("{}", y);
-            if head_position.x == x && head_position.y == y {
-                print!("H");
-            } else if tail_position.x == x && tail_position.y == y {
-                print!("T");
-            } else {
-                print!(".");
-            }
-        }
-
-        println!();
-    }
-
-    println!();
-}
