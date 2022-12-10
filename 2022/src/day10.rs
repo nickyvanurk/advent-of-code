@@ -1,5 +1,39 @@
-pub fn part1(input: &str) -> u32 {
-    0
+
+
+pub fn part1(input: &str) -> i32 {
+    let mut instructions: Vec<Vec<&str>> = input.lines().map(|s| s.split_whitespace().collect()).rev().collect();
+    let mut register = 1;
+    let mut cycles = 0;
+    let mut signal_strength = 0;
+
+    let mut temp = 0;
+    loop {
+        cycles += 1;
+
+        if vec![20, 60, 100, 140, 180, 220].contains(&cycles) {
+            signal_strength += cycles * register;
+        }
+        
+        register += temp;
+        let ready = temp == 0;
+        temp = 0;
+
+        if ready {
+            let instruction = instructions.pop().unwrap();
+
+            match instruction[0] {
+                "noop" => (),
+                "addx" => temp = instruction[1].parse::<i32>().unwrap(),
+                _ => (),
+            }
+        }
+    
+        if instructions.len() == 0 && temp == 0 {
+            break;
+        }
+    }
+
+    signal_strength
 }
 
 pub fn part2(input: &str) -> u32 {
